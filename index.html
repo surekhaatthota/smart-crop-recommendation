@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🌾 Smart Crop Recommendation</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #f1f8e9);
+      padding: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 32px;
+      color: #2e7d32;
+      margin-bottom: 30px;
+    }
+
+    button {
+      background-color: #388e3c;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2c6e2b;
+    }
+
+    .card {
+      margin-top: 40px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 30px;
+      display: inline-block;
+      text-align: left;
+      max-width: 400px;
+    }
+
+    .card h2 {
+      font-size: 24px;
+      color: #388e3c;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 18px;
+      margin: 8px 0;
+      color: #444;
+    }
+
+    .emoji {
+      font-size: 24px;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌾 Smart Crop Recommendation</h1>
+  <button onclick="getLocation()">📍 Detect Location & Recommend Crop</button>
+
+  <div id="result" class="card" style="display:none;">
+    <h2>🌱 Recommendation</h2>
+    <p><span class="emoji">📍</span><strong>Location:</strong> <span id="loc"></span></p>
+    <p><span class="emoji">🌾</span><strong>Best Crop:</strong> <span id="crop"></span></p>
+  </div>
+
+  <script>
+    function sendToAPI(lat, lon) {
+      fetch("http://127.0.0.1:8000/geo-recommend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ latitude: lat, longitude: lon })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("loc").innerText = data.location;
+        document.getElementById("crop").innerText = data.recommended_crop;
+        document.getElementById("result").style.display = "block";
+      })
+      .catch(error => {
+        alert("❌ Error fetching recommendation: " + error);
+      });
+    }
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          sendToAPI(lat, lon);
+        }, function(error) {
+          alert("⚠️ Location access denied.");
+        });
+      } else {
+        alert("⚠️ Geolocation not supported.");
+      }
+    }
+  </script>
+
+</body>
+</html>
